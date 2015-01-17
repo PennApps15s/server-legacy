@@ -62,5 +62,5 @@ def login():
 @mod.route('/me', methods=["GET"])
 @requires_login
 def get_me():
-    return json.dumps(g.user.to_dict()), 200, {'Content-Type': 'application/json'}
+    return g.user.to_json_response()
 
