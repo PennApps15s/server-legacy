@@ -7,6 +7,7 @@ class MovieSerializer(Serializer):
     class Meta:
         fields = (
             'id',
+            'omdbID',
             'imdbID',
             'Title',
             'Year',
@@ -32,6 +33,7 @@ class MovieSerializer(Serializer):
 class Movie(db.Model):
     __tablename__ = 'movies'
     id              = db.Column(db.Integer, primary_key=True)
+    omdbID          = db.Column(db.Integer)
     imdbID          = db.Column(db.String(120))
     Title           = db.Column(db.String(255))
     Year            = db.Column(db.Integer)
