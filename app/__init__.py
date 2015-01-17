@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flask import Flask, render_template
+from flask import Flask, render_template, g, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,6 +16,20 @@ def not_found(error):
 @app.route('/')
 def main():
     return "Working!"
+
+@app.before_request
+def make_user():
+    from app.user.models import User
+    g.user = None
+    print("pre")
+    if 'session' in request.headers:
+        results = User.query.filter(User.session == request.headers['session'])
+        if results[0]:
+            g.user = results[0]
+            print("found", g.user)
+        else:
+            print("Error: Duplicate ")
+
 
 from app.user.routes import mod as usersModule
 app.register_blueprint(usersModule)
