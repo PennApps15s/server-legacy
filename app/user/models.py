@@ -4,7 +4,7 @@ import json
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
+    name = db.Column(db.String(50))
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(120))
     isCritic = db.Column(db.Boolean())
@@ -12,11 +12,13 @@ class User(db.Model):
     bio = db.Column(db.String(255))
     criticPublication = db.Column(db.String(120))
 
+    session = db.Column(db.String(120))
+
     def __repr__(self):
         cleaned = {}
-        for key, val in self.__dict__:
+        for key in self.__dict__:
             if(key[0] != '_'):
-                cleaned[key] = val
+                cleaned[key] = self.__dict__[key]
         return json.dumps(cleaned)
 
     def to_dict(self):
