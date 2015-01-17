@@ -33,10 +33,10 @@ class User(db.Model):
         return json.dumps(cleaned)
 
     def to_dict(self):
-        return UserSerializer(user).data
+        return UserSerializer(self).data
 
     def to_json(self):
-        return json.dumps(UserSerializer(user).data)
+        return json.dumps(UserSerializer(self).data)
 
     def to_json_response(self):
-        return json.dumps(UserSerializer(user).data), 200, {'Content-Type': 'application/json'}
+        return json.dumps(UserSerializer(self).data), 200, {'Content-Type': 'application/json'}
