@@ -1,5 +1,31 @@
 from app import db
 import json
+from marshmallow import Serializer
+
+
+class MovieSerializer(Serializer):
+    class Meta:
+        fields = (
+            'id',
+            'imdbId',
+            'movieTitle',
+            'genre',
+            'runtime',
+            'director',
+            'writer',
+            'actors',
+            'rated',
+            'releaseYear',
+            'releaseDate',
+            'plot',
+            'poster',
+            'language',
+            'country',
+            'awards',
+            'metascore',
+            'imdbRating',
+            'imdbVotes'
+        )
 
 class Movie(db.Model):
     __tablename__ = 'movies'
@@ -27,15 +53,13 @@ class Movie(db.Model):
 
 
     def __repr__(self):
-        cleaned = {}
-        for key, val in self.__dict__:
-            if(key[0] != '_'):
-                cleaned[key] = val
-        return json.dumps(cleaned)
+        return self.to_json()
 
     def to_dict(self):
-        cleaned = {}
-        for key in self.__dict__:
-            if(key[0] != '_'):
-                cleaned[key] = self.__dict__[key]
-        return cleaned
+        return MovieSerializer(self).data
+
+    def to_json(self):
+        return json.dumps(MovieSerializer(self).data)
+
+    def to_json_response(self):
+        return json.dumps(MovieSerializer(self).data), 200, {'Content-Type': 'application/json'}

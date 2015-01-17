@@ -24,6 +24,7 @@ def make_user():
     print("pre")
     if 'session' in request.headers:
         results = User.query.filter(User.session == request.headers['session'])
+        print('results', results, results.all())
         if results.count() == 1:
             g.user = results[0]
             print("found", g.user)
