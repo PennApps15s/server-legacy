@@ -32,7 +32,7 @@ class MovieSerializer(Serializer):
 
 class Movie(db.Model):
     __tablename__ = 'movies'
-    ID              = db.Column(db.Integer, primary_key=True)
+    id              = db.Column(db.Integer, primary_key=True)
     omdbID          = db.Column(db.Integer)
     imdbID          = db.Column(db.String(120))
     Title           = db.Column(db.String(255))
