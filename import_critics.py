@@ -3,6 +3,7 @@ import logging
 from app import db
 from app.user.models import User
 from app.review.models import Review
+from app.movie.models import Movie
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -33,13 +34,26 @@ def add_user(name, criticPublication=None,
     return user.id
 
 def add_review(
-        userId,
-        movieId,
-        score = None,
-        reviewBody = None,
-        publicationTitle = None,
-        datePosted = None
-    )
+        userId, movieName,
+        metacriticScore = None, reviewBody = None,
+        publicationTitle = None, datePosted = None):
+    result = Movie.query.filter(Movie.title == movieName)
+    
+    if result:
+        movieId = result[0].id
+
+        review = Review(
+                userId = userId,
+                movieId = movieId,
+                score = None,
+                metacriticScore = metacriticScore,
+                reviewBody = reviewBo   dy,
+                publicationTitle = publicationTitle,
+                datePosted = datePosted
+            )
+
+        db.session.add(review)
+        db.session.commit()
 
 def import_json_file(filename):
     json_data=open(filename)
