@@ -15,6 +15,6 @@ def create_review():
             publicationTitle = request.form['publicationTitle'],
             datePosted = request.form['datePosted']
         )
-    db.session.add(user)
+    db.session.add(review)
     db.session.commit()
-    return str(user), 200, {'Content-Type': 'application/json'}
+    return str(review), 200, {'Content-Type': 'application/json'}
