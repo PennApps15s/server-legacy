@@ -12,43 +12,31 @@ import bcrypt
 mod = Blueprint('users', __name__, url_prefix='/user')
 
 def gen_session(user):
-    token = random_uiud().hex
+    token = random_uuid().hex
     user.session = token
     db.session.add(user)
     db.session.commit()
     return token
 
-
-@mod.before_request
-def before_request():
-  g.user = None
-  if 'user_id' in session:
-    g.user = User.query.get(session['user_id'])
-
 @mod.route('/', methods=["POST"])
 def create_user():
     token = random_uuid().hex
-    user = User(
+    created_user = User(
         name=request.form['name'],
         email=request.form['email'],
-        password= gen_session(),
-        token = token
+        password= bcrypt.hashpw( request.form['password'].encode('utf-8'), bcrypt.gensalt() ),
+        session = token
     )
-    db.session.add(user)
+    db.session.add(created_user)
     db.session.commit()
-    return str(user), 200, {'Content-Type': 'application/json'}
 
-@mod.route('/login', methods=['POST'])
-def login():
-    # Untested
-    hashed = user.password.encode('utf-8')
-    if bcrypt.hashpw(password, hashed) == hashed:
-        return json.dumps({
-            'session': create_token( user.id ),
-            'user': user.to_dict()
-        }), 200, jsonType
-    else:
-        return 'Incorrect password', 401
+
+    user = User.query.filter(User.email == request.form['email'])[0]
+    
+    return json.dumps({
+        'session': token,
+        'user': user.to_dict()
+    }), 200, {'Content-Type': 'application/json'}
 
 @mod.route('/', methods=["GET"])
 def get_all():
@@ -57,3 +45,21 @@ def get_all():
     for item in q:
         result.append(item.to_dict())
     return json.dumps(result), 200, {'Content-Type': 'application/json'}
+
+
+@mod.route('/login', methods=['POST'])
+def login():
+    user = User.query.filter(User.email == request.form['email'])[0]
+    hashed = user.password.encode('utf-8')
+    if bcrypt.hashpw(request.form['password'].encode('utf-8'), hashed) == hashed:
+        return json.dumps({
+            'session': gen_session( user ),
+            'user': user.to_dict()
+        }), 200, {'Content-Type': 'application/json'}
+    else:
+        return 'Incorrect password', 401
+
+@mod.route('/me', methods=["GET"])
+def get_me():
+    return json.dumps(g.user.to_dict()), 200, {'Content-Type': 'application/json'}
+
