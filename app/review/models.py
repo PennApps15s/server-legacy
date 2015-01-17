@@ -8,7 +8,7 @@ class Review(db.Model):
     reviewId            = db.Column(db.Integer)
     score               = db.Column(db.Integer)
     reviewBody          = db.Column(db.Text)
-    criticPublication   = db.Column(db.String(120))
+    publicationTitle    = db.Column(db.String(120))
     datePosted          = db.Column(db.String(120))
 
     def __repr__(self):
