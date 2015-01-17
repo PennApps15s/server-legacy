@@ -5,10 +5,10 @@ class Review(db.Model):
     __tablename__ = 'reviews'
     id                  = db.Column(db.Integer, primary_key=True)
     userId              = db.Column(db.Integer)
-    reviewId            = db.Column(db.Integer)
+    movieId             = db.Column(db.Integer)
     score               = db.Column(db.Integer)
     reviewBody          = db.Column(db.Text)
-    criticPublication   = db.Column(db.String(120))
+    publicationTitle    = db.Column(db.String(120))
     datePosted          = db.Column(db.String(120))
 
     def __repr__(self):

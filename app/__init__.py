@@ -34,6 +34,12 @@ def make_user():
 from app.user.routes import mod as usersModule
 app.register_blueprint(usersModule)
 
+from app.review.routes import reviews_blueprint
+app.register_blueprint(reviews_blueprint)
+
+from app.movie.routes import movies_blueprint
+app.register_blueprint(movies_blueprint)
+
 # Later on you'll import the other blueprints the same way:
 #from app.comments.views import mod as commentsModule
 #from app.posts.views import mod as postsModule
