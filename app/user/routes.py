@@ -22,16 +22,16 @@ def gen_session(user):
 def create_user():
     token = random_uuid().hex
     created_user = User(
-        name=request.form['name'],
-        email=request.form['email'],
-        password= bcrypt.hashpw( request.form['password'].encode('utf-8'), bcrypt.gensalt() ),
+        name=request.json['name'],
+        email=request.json['email'],
+        password= bcrypt.hashpw( request.json['password'].encode('utf-8'), bcrypt.gensalt() ),
         session = token
     )
     db.session.add(created_user)
     db.session.commit()
 
 
-    user = User.query.filter(User.email == request.form['email'])[0]
+    user = User.query.filter(User.email == request.json['email'])[0]
     
     return json.dumps({
         'session': token,
@@ -49,9 +49,9 @@ def get_all():
 
 @mod.route('/login', methods=['POST'])
 def login():
-    user = User.query.filter(User.email == request.form['email'])[0]
+    user = User.query.filter(User.email == request.json['email'])[0]
     hashed = user.password.encode('utf-8')
-    if bcrypt.hashpw(request.form['password'].encode('utf-8'), hashed) == hashed:
+    if bcrypt.hashpw(request.json['password'].encode('utf-8'), hashed) == hashed:
         return json.dumps({
             'session': gen_session( user ),
             'user': user.to_dict()
@@ -60,6 +60,7 @@ def login():
         return 'Incorrect password', 401
 
 @mod.route('/me', methods=["GET"])
+@requires_login
 def get_me():
     return json.dumps(g.user.to_dict()), 200, {'Content-Type': 'application/json'}
 

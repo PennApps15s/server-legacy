@@ -8,12 +8,12 @@ reviews_blueprint = Blueprint('reviews', __name__, url_prefix='/review')
 @reviews_blueprint.route('/', methods=["POST"])
 def create_review():
     review = Review(
-            userId = request.form['userId'],
-            movieId = request.form['movieId'],
-            score = request.form['score'],
-            reviewBody = request.form['reviewBody'],
-            publicationTitle = request.form['publicationTitle'],
-            datePosted = request.form['datePosted']
+            userId = request.json['userId'],
+            movieId = request.json['movieId'],
+            score = request.json['score'],
+            reviewBody = request.json['reviewBody'],
+            publicationTitle = request.json['publicationTitle'],
+            datePosted = request.json['datePosted']
         )
     db.session.add(review)
     db.session.commit()

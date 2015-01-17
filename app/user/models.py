@@ -1,5 +1,10 @@
 from app import db
 import json
+from marshmallow import Serializer
+
+class UserSerializer(Serializer):
+    class Meta:
+        fields = ('id', 'name', 'email', 'isCritic', 'bio', 'criticPublication', 'highest_review', 'lowest_review', 'average_review')
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -28,9 +33,10 @@ class User(db.Model):
         return json.dumps(cleaned)
 
     def to_dict(self):
-        cleaned = {}
-        for key in self.__dict__:
-            if(key[0] != '_' and key != 'session'):
-                cleaned[key] = self.__dict__[key]
-        print("Done!", cleaned)
-        return cleaned
+        return UserSerializer(user).data
+
+    def to_json(self):
+        return json.dumps(UserSerializer(user).data)
+
+    def to_json_response(self):
+        return json.dumps(UserSerializer(user).data), 200, {'Content-Type': 'application/json'}
