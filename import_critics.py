@@ -38,7 +38,7 @@ def add_review(
         metacriticScore = None, reviewBody = None,
         publicationTitle = None, datePosted = None):
     result = Movie.query.filter(Movie.title == movieName)
-    
+
     if result:
         movieId = result[0].id
 
@@ -66,8 +66,17 @@ def import_json_file(filename):
                 highest_review = critic['highest_review_score'],
                 lowest_review = critic['lowest_review_score'],
                 average_review = critic['average_review_score']
-                )
+            )
 
+            for review in critic['reviews']:
+                add_review(
+                    user_id,
+                    review['movie_name'],
+                    metacriticScore = review['score'],
+                    reviewBody = review['review_body'],
+                    publicationTitle = review['publication_title'],
+                    datePosted = review['post_date']
+                )
 
     json_data.close()
 
