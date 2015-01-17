@@ -2,6 +2,7 @@ import json
 import logging
 from app import db
 from app.user.models import User
+from app.review.models import Review
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -29,18 +30,31 @@ def add_user(name, criticPublication=None,
     db.session.add(user)
     db.session.commit()
 
+    return user.id
+
+def add_review(
+        userId,
+        movieId,
+        score = None,
+        reviewBody = None,
+        publicationTitle = None,
+        datePosted = None
+    )
+
 def import_json_file(filename):
     json_data=open(filename)
     data = json.load(json_data)
     for critic in data:
         if critic:
-            add_user(
+            user_id = add_user(
                 critic['critic_name'],
                 criticPublication = critic['publication_title'],
                 highest_review = critic['highest_review_score'],
                 lowest_review = critic['lowest_review_score'],
                 average_review = critic['average_review_score']
                 )
+
+
     json_data.close()
 
 import_json_file('db_imports/metacritic_scrape/critics_abcdef.min.json')

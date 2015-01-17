@@ -10,6 +10,7 @@ class ReviewSerializer(Serializer):
             'userId',
             'movieId',
             'score',
+            'metacriticScore',
             'reviewBody',
             'publicationTitle',
             'datePosted',
@@ -22,6 +23,7 @@ class Review(db.Model):
     userId              = db.Column(db.Integer)
     movieId             = db.Column(db.Integer)
     score               = db.Column(db.Integer)
+    metacriticScore     = db.Column(db.Integer)
     reviewBody          = db.Column(db.Text)
     publicationTitle    = db.Column(db.String(120))
     datePosted          = db.Column(db.String(120))
