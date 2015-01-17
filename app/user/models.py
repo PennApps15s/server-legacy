@@ -16,6 +16,10 @@ class User(db.Model):
 
     session = db.Column(db.String(120))
 
+    highest_review = db.Column(db.Integer)
+    lowest_review = db.Column(db.Integer)
+    average_review = db.Column(db.Integer)
+
     def __repr__(self):
         cleaned = {}
         for key in self.__dict__:
