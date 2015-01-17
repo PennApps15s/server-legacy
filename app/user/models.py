@@ -7,18 +7,10 @@ class User(db.Model):
     name = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(120))
-    isCritc = db.Column(db.Boolean())
+    isCritic = db.Column(db.Boolean())
     
     bio = db.Column(db.String(255))
     criticPublication = db.Column(db.String(120))
-
-    def __init__(self, name=None, email=None, password=None):
-        print("Init")
-        self.name = name
-        self.email = email
-        self.password = password
-        print("Done init")
-        return None
 
     def __repr__(self):
         cleaned = {}
