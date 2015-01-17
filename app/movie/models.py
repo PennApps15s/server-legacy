@@ -2,7 +2,7 @@ from app import db
 import json
 
 class Movie(db.Model):
-    __tablename__ = 'reviews'
+    __tablename__ = 'movies'
     id              = db.Column(db.Integer, primary_key=True)
     imdbId          = db.Column(db.String(120))
 
