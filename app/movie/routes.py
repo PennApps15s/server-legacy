@@ -28,7 +28,7 @@ def get_movie_feed():
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
         ORDER BY movies."imdbVotes"
-        LIMIT 8
+        LIMIT 20
     ''')
 
     unpopular_results = db.engine.execute('''
@@ -42,7 +42,7 @@ def get_movie_feed():
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
         ORDER BY random()
-        LIMIT 1;
+        LIMIT 5;
     ''')
 
     feed_movies = []
