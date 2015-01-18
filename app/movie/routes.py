@@ -36,7 +36,7 @@ def like_movie(movie_id):
         userId= g.user.id,
         movieId=movie_id,
         score=action_code,
-        datePosted=str(datetime.now)
+        datePosted=str(datetime.now())
     )
     db.session.add(created_review)
     db.session.commit()
