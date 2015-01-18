@@ -11,7 +11,7 @@ import json
 
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
-COLUMNS_FOR_FEED = ['id', 'Title', 'imdbRating', 'Poster', 'Year']
+COLUMNS_FOR_FEED = ['id', '"Title"', '"imdbRating"', '"Poster"', '"Year"']
 
 @movies_blueprint.route('/feed/', methods=['GET'])
 @requires_login
@@ -44,12 +44,12 @@ def get_movie_feed():
     for row in popular_results:
         data = {}
         for i, cell in enumerate(row):
-            data[ columns[i].replace('"', '') ] = cell
+            data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
         feed_movies.append(data)
     for row in unpopular_results:
         data = {}
         for i, cell in enumerate(row):
-            data[ columns[i].replace('"', '') ] = cell
+            data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
         feed_movies.append(data)
 
     return json.dumps(feed_movies), 200, {'Content-Type': 'application/json'}
