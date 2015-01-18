@@ -103,7 +103,6 @@ def get_user_shared_likes(user_id):
         for i, cell in enumerate(row):
             data[ columns[i].replace('"', '') ] = cell
         result.append(data)
-
     return result
 
 def get_user_favorites(user_id):
@@ -170,7 +169,7 @@ def get_user_template(user_id):
 
     return render_template('critic.html',
             critic=user,
-            similar=get_user_shared_likes(user.id),
+            similars=get_user_shared_likes(user.id),
             favorites=get_user_favorites(user.id),
             recents=get_user_recent(user.id)
         )
