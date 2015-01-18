@@ -11,18 +11,22 @@ import json
 
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
-COLUMNS_FOR_FEED = ['id', '"Title"', '"imdbRating"', '"Poster"', '"Year"']
+COLUMNS_FOR_FEED = ['id', '"Title"', '"imdbRating"', '"Poster"', '"Year"', '"Rating"']
 
 @movies_blueprint.route('/feed/', methods=['GET'])
 @requires_login
 def get_movie_feed():
-    popular_results = db.engine.execute('''SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
+    popular_results = db.engine.execute('''
+        SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
-        WHERE (movies."Rating" IS NOT NULL) AND movies.id
-        NOT IN (
+        WHERE movies."Rating" IN (
+            'G', 'PG', 'PG-13', 'R', 'TV-PG'
+        )
+        AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
-            WHERE reviews."userId" = ''' + str(g.user.id) + ''')
+            WHERE reviews."userId" = ''' + str(g.user.id) + '''
+        )
         ORDER BY movies."imdbVotes"
         LIMIT 8
     ''')
@@ -35,9 +39,10 @@ def get_movie_feed():
         NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
-            WHERE reviews."userId" = ''' + str(g.user.id) + ''')
+            WHERE reviews."userId" = ''' + str(g.user.id) + '''
+        )
         ORDER BY random()
-        LIMIT 2;
+        LIMIT 1;
     ''')
 
     feed_movies = []
