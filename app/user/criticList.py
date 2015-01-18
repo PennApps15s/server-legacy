@@ -11,22 +11,16 @@ low_border = 40
 
 def get_critics(user, reviews):
     print str(user), str(reviews)
+    likes = []
+    dislikes = []
 
-    likes = [
-        "11720",
-        "49821",
-        "22007",
-        "30922",
-        "50981",
-        "13800",
-        "13341"
-    ]
-    dislikes = [
-        "28075",
-        "31379",
-        "44391",
-        "45418"
-    ]
+    for r in reviews:
+        if r.score == 1:
+            likes.append(str(r.movieId))
+        elif r.score == -1:
+            dislikes.append(str(r.movieId))
+
+    print("LIKES/DISLIKES", likes, dislikes)
     
     sql = """
             SELECT """ +', '.join(columns)+ """,
@@ -51,6 +45,7 @@ def get_critics(user, reviews):
             ORDER BY netScore DESC
             LIMIT 100
         """
+
     columns.append("netScore")
 
     result = []
@@ -65,6 +60,9 @@ def get_critics(user, reviews):
     for critic in result:
         scoreTotal += critic['netScore']
         count += 1
+
+    if count == 0:
+        return []
 
     averageScore = float(scoreTotal) / float(count)
     print "Average Score", averageScore
