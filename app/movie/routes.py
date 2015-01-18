@@ -16,7 +16,7 @@ movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 def get_movie_feed():
     result = db.engine.execute('''SELECT movies.id
         FROM movies 
-        WHERE movies.id 
+        WHERE (movies."Rating" IS NOT NULL) AND movies.id
         NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
