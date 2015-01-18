@@ -5,6 +5,7 @@ from app import db
 from app.user.models import User
 from app.review.models import Review 
 from app.user.decorators import requires_login
+from app.user.criticList import get_critics
 
 import json
 from uuid import uuid4 as random_uuid
@@ -88,5 +89,16 @@ def get_user_likes(user_id):
 
     return json.dumps(results), 200, {'Content-Type': 'application/json'}
 
+@mod.route('/criticList/', methods=["GET"])
+@requires_login
+def get_user_critics():
+    likes = Review.query.filter(Review.userId == g.user.id).all()
+    # if len(likes) < 10:
+    #     return "User needs more likes", 409
 
+    results = []
+    for r in get_critics(g.user, likes):
+        results.append(r)
+
+    return json.dumps(results), 200, {'Content-Type': 'application/json'}
 
