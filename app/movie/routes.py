@@ -11,7 +11,7 @@ import json
 
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
-@movies_blueprint.route('/feed', methods=['GET'])
+@movies_blueprint.route('/feed/', methods=['GET'])
 @requires_login
 def get_movie_feed():
     popular_results = db.engine.execute('''SELECT movies.id
@@ -22,7 +22,7 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + ''')
         ORDER BY movies."imdbVotes"
-        LIMIT 10
+        LIMIT 8
     ''')
 
     unpopular_results = db.engine.execute('''
@@ -35,11 +35,13 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + ''')
         ORDER BY random()
-        LIMIT 10
+        LIMIT 2;
     ''')
 
     feed_movies = []
-    for row in result:
+    for row in popular_results:
+        feed_movies.append(int(row[0]))
+    for row in unpopular_results:
         feed_movies.append(int(row[0]))
 
     return json.dumps(feed_movies), 200, {'Content-Type': 'application/json'}
