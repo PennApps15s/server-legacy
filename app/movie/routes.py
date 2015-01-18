@@ -32,7 +32,7 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
-        ORDER BY movies."imdbVotes"
+        ORDER BY movies."imdbVotes" DESC
         LIMIT 12
     ''')
 
@@ -45,7 +45,7 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
-        ORDER BY movies."imdbRating"
+        ORDER BY movies."imdbRating" DESC
         LIMIT 12
     ''')
 
