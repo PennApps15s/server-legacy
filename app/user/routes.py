@@ -162,7 +162,6 @@ def get_user_recent(user_id):
 def get_user_template(user_id):
     if user_id == 'me':
         return "Only built for critic templates"
-
     user = User.query.get(user_id)
     if not user:
         return "User not found", 404
