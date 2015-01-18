@@ -39,6 +39,7 @@ def get_movie_feed():
         WHERE (movies."Rating" IS NOT NULL)
         AND (movies."imdbRating" > 4)
         AND (movies."Year" > 1990)
+        AND (movies."imdbVotes" > 50)
         AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
