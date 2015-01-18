@@ -25,8 +25,10 @@ def get_critics(user, reviews):
     columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount']
     
     sql = """
-            SELECT """ +', '.join(columns)+ """, sharedCount-diffCount as netScore from users
-            inner join
+            SELECT """ +', '.join(columns)+ """,
+            sharedCount-diffCount as netScore
+            FROM users
+            INNER JOIN
                 (
                     SELECT "userId", COUNT(*) as sharedCount FROM reviews
                     LEFT JOIN users ON "userId" = users.id
@@ -34,18 +36,17 @@ def get_critics(user, reviews):
                     GROUP BY "userId"
                 ) sharedReviews
             on sharedReviews."userId" = users.id
-            inner join
+            INNER JOIN
                 (
                     SELECT "userId", COUNT(*) as diffCount FROM reviews
                     LEFT JOIN users ON "userId" = users.id
                     WHERE ("movieId" in ("""+', '.join(likes)+""") AND "metacriticScore" < 30) OR ("movieId" in ("""+', '.join(dislikes)+""") AND "metacriticScore" > 70)
                     GROUP BY "userId"
                 ) diffReviews
-            on diffReviews."userId" = users.id
+            ON diffReviews."userId" = users.id
             ORDER BY netScore DESC
-            LIMIT 10
+            LIMIT 100
         """
-    print sql
     columns.append("netScore")
 
     result = []
@@ -54,4 +55,16 @@ def get_critics(user, reviews):
         for i, cell in enumerate(row):
             data[ columns[i].replace('"', '') ] = cell
         result.append(data)
-    return result
+
+    scoreTotal = 0
+    count = 0
+    for critic in result:
+        scoreTotal += critic['netScore']
+        count += 1
+
+    averageScore = float(scoreTotal) / float(count)
+    print "Average", averageScore
+    for i, critic in enumerate(result):
+        result[i]['adjustedScore'] = float(critic['netScore']-averageScore)/abs(averageScore)
+
+    return sorted(result, key=lambda k: -1 * k['adjustedScore'])
