@@ -37,6 +37,7 @@ def add_review(
         userId, movieName,
         metacriticScore = None, reviewBody = None,
         publicationTitle = None, datePosted = None):
+
     result = Movie.query.filter(Movie.Title == movieName).all()
 
     if result:
