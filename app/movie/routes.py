@@ -4,8 +4,10 @@ from app import db
 from app.movie.models import Movie
 from app.user.decorators import requires_login
 from app.review.models import Review
+from app.user.models import User
 
 from datetime import datetime
+import json
 
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
@@ -18,11 +20,16 @@ def get_movie_feed():
         NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
-            WHERE reviews."userId" = ''' + g.user.id + ')')
+            WHERE reviews."userId" = ''' + str(g.user.id) + ''')
+        ORDER BY random()
+        LIMIT 10
+    ''')
 
-    print result
+    feed_movies = []
+    for row in result:
+        feed_movies.append(int(row[0]))
 
-    return str(user), 200, {'Content-Type': 'application/json'}
+    return json.dumps(feed_movies), 200, {'Content-Type': 'application/json'}
 
 @movies_blueprint.route('/<movie_id>/', methods=["GET"])
 @requires_login
