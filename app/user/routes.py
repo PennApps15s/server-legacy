@@ -3,6 +3,7 @@ from werkzeug import check_password_hash, generate_password_hash
 
 from app import db
 from app.user.models import User
+from app.review.models import Review 
 from app.user.decorators import requires_login
 
 import json
@@ -47,7 +48,7 @@ def get_all():
     return json.dumps(result), 200, {'Content-Type': 'application/json'}
 
 
-@mod.route('/login', methods=['POST'])
+@mod.route('/login/', methods=['POST'])
 def login():
     user = User.query.filter(User.email == request.json['email'])[0]
     hashed = user.password.encode('utf-8')
@@ -59,8 +60,33 @@ def login():
     else:
         return 'Incorrect password', 401
 
-@mod.route('/me', methods=["GET"])
+@mod.route('/<user_id>/', methods=["GET"])
 @requires_login
-def get_me():
-    return g.user.to_json_response()
+def get_user(user_id):
+    if user_id == 'me':
+        return g.user.to_json_response()
+
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    return user.to_json_response()
+
+@mod.route('/<user_id>/reviews', methods=["GET"])
+@requires_login
+def get_user_likes(user_id):
+    if user_id == 'me':
+        user_id = g.user.id
+
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    results = []
+    for r in Review.query.filter(Review.userId == user_id).all():
+        results.append(r.to_dict())
+
+    return json.dumps(results), 200, {'Content-Type': 'application/json'}
+
+
 

@@ -8,7 +8,6 @@ class UserSerializer(Serializer):
             'id',
             'name',
             'email',
-            'password',
             'isCritic',
             'bio',
             'criticPublication',
