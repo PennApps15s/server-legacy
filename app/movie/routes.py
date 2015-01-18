@@ -12,41 +12,40 @@ import json
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
 COLUMNS_FOR_FEED = ['id', '"Title"', '"imdbRating"', '"Poster"', '"Year"', '"Rating"']
+UNIVERSAL_FILTERS = '''
+        movies."Rating" IN (
+            'G', 'PG', 'PG-13', 'R', 'TV-PG'
+        )
+        AND (movies."Year" > 2004)
+    '''
 
 @movies_blueprint.route('/feed/', methods=['GET'])
 @requires_login
 def get_movie_feed():
-    popular_results = db.engine.execute('''
+    most_voted_results = db.engine.execute('''
         SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
-        WHERE movies."Rating" IN (
-            'G', 'PG', 'PG-13', 'R', 'TV-PG'
-        )
-        AND (movies."Year" > 1990)
+        WHERE ''' + UNIVERSAL_FILTERS + '''
         AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
         ORDER BY movies."imdbVotes"
-        LIMIT 20
+        LIMIT 12
     ''')
 
-    unpopular_results = db.engine.execute('''
-        SELECT setseed(0.''' + str(g.user.id) + ''');
+    highest_rated_results = db.engine.execute('''
         SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
-        WHERE (movies."Rating" IS NOT NULL)
-        AND (movies."imdbRating" > 4)
-        AND (movies."Year" > 1990)
-        AND (movies."imdbVotes" > 500)
+        WHERE ''' + UNIVERSAL_FILTERS + '''
         AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
         )
-        ORDER BY random()
-        LIMIT 5;
+        ORDER BY movies."imdbRating"
+        LIMIT 12
     ''')
 
     feed_movies = []
