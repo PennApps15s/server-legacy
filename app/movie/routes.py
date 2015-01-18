@@ -17,6 +17,7 @@ UNIVERSAL_FILTERS = '''
             'G', 'PG', 'PG-13', 'R', 'TV-PG'
         )
         AND (movies."Year" > 2004)
+        AND (movies."imdbRating" > 5)
     '''
 
 @movies_blueprint.route('/feed/', methods=['GET'])
