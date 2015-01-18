@@ -4,6 +4,8 @@ from app.review.models import Review
 
 import json
 
+columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount']
+
 def get_critics(user, reviews):
     print str(user), str(reviews)
 
@@ -22,7 +24,6 @@ def get_critics(user, reviews):
         "44391",
         "45418"
     ]
-    columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount']
     
     sql = """
             SELECT """ +', '.join(columns)+ """, sharedCount-diffCount as netScore from users
