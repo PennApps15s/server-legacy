@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, jsonify
+from flask import Blueprint, request, render_template, render_template_string, flash, g, session, redirect, url_for, jsonify
 from werkzeug import check_password_hash, generate_password_hash
 
 from app import db
@@ -22,23 +22,30 @@ def gen_session(user):
 
 @mod.route('/', methods=["POST"])
 def create_user():
-    token = random_uuid().hex
-    created_user = User(
-        name=request.json['name'],
-        email=request.json['email'],
-        password= bcrypt.hashpw( request.json['password'].encode('utf-8'), bcrypt.gensalt() ),
-        session = token
+    user = User(
+        name=request.form['name'],
+        email=request.form['email'],
+        password= bcrypt.hashpw( request.form['password'].encode('utf-8'), bcrypt.gensalt() )
     )
-    db.session.add(created_user)
+    db.session.add(user)
     db.session.commit()
 
+    session['user'] = user.id
+    return redirect('/')
 
-    user = User.query.filter(User.email == request.json['email'])[0]
-    
-    return json.dumps({
-        'session': token,
-        'user': user.to_dict()
-    }), 200, {'Content-Type': 'application/json'}
+@mod.route('/login/', methods=['POST'])
+def login():
+    user = User.query.filter(User.email == request.form['email'])
+    if user.count() != 1:
+        return redirect('/login?error=email')
+    user = user.all()[0]
+
+    hashed = user.password.encode('utf-8')
+    if bcrypt.hashpw(request.form['password'].encode('utf-8'), hashed) == hashed:
+        session['user'] = user.id
+        return redirect('/')
+    else:
+        return redirect('/login?error=password')
 
 @mod.route('/', methods=["GET"])
 def get_all():
@@ -47,19 +54,6 @@ def get_all():
     for item in q:
         result.append(item.to_dict())
     return json.dumps(result), 200, {'Content-Type': 'application/json'}
-
-
-@mod.route('/login/', methods=['POST'])
-def login():
-    user = User.query.filter(User.email == request.json['email'])[0]
-    hashed = user.password.encode('utf-8')
-    if bcrypt.hashpw(request.json['password'].encode('utf-8'), hashed) == hashed:
-        return json.dumps({
-            'session': gen_session( user ),
-            'user': user.to_dict()
-        }), 200, {'Content-Type': 'application/json'}
-    else:
-        return 'Incorrect password', 401
 
 @mod.route('/<user_id>/', methods=["GET"])
 @requires_login
@@ -89,8 +83,6 @@ def get_user_likes(user_id):
 
     return json.dumps(results), 200, {'Content-Type': 'application/json'}
 
-@mod.route('/<user_id>/sharedLikes', methods=["GET"])
-@requires_login
 def get_user_shared_likes(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -112,11 +104,9 @@ def get_user_shared_likes(user_id):
             data[ columns[i].replace('"', '') ] = cell
         result.append(data)
 
-    return json.dumps(result), 200, {'Content-Type': 'application/json'} 
+    return result
 
-@mod.route('/<user_id>/favorite', methods=["GET"])
-@requires_login
-def get_user_favorite(user_id):
+def get_user_favorites(user_id):
     user = User.query.get(user_id)
     if not user:
         return "User not found", 404
@@ -140,10 +130,8 @@ def get_user_favorite(user_id):
             data[ columns[i].replace('"', '') ] = cell
         result.append(data)
 
-    return json.dumps(result), 200, {'Content-Type': 'application/json'} 
+    return result
 
-@mod.route('/<user_id>/recent', methods=["GET"])
-@requires_login
 def get_user_recent(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -168,8 +156,24 @@ def get_user_recent(user_id):
             data[ columns[i].replace('"', '') ] = cell
         result.append(data)
 
-    return json.dumps(result), 200, {'Content-Type': 'application/json'} 
+    return result
 
+@mod.route('/<user_id>/template/')
+@requires_login
+def get_user_template(user_id):
+    if user_id == 'me':
+        return "Only built for critic templates"
+
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found", 404
+
+    return render_template('critic.html',
+            critic=user,
+            similar=get_user_shared_likes(user.id),
+            favorites=get_user_favorites(user.id),
+            recents=get_user_recent(user.id)
+        )
 
 @mod.route('/criticList/', methods=["GET"])
 @requires_login

@@ -4,7 +4,7 @@ from app.review.models import Review
 
 import json
 
-columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount']
+columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount', 'netScore']
 
 upp_border = 60
 low_border = 40
@@ -23,7 +23,7 @@ def get_critics(user, reviews):
     print("LIKES/DISLIKES", likes, dislikes)
     
     sql = """
-            SELECT """ +', '.join(columns)+ """,
+            SELECT """ +', '.join(columns[:-1])+ """,
             CAST(1.4 as float)*sharedCount-diffCount as netScore
             FROM users
             INNER JOIN
@@ -43,10 +43,8 @@ def get_critics(user, reviews):
                 ) diffReviews
             ON diffReviews."userId" = users.id
             ORDER BY netScore DESC
-            LIMIT 100
+            LIMIT 15
         """
-
-    columns.append("netScore")
 
     result = []
     for row in db.engine.execute(sql):
@@ -69,4 +67,4 @@ def get_critics(user, reviews):
     for i, critic in enumerate(result):
         result[i]['adjustedScore'] = float(critic['netScore']-averageScore)/abs(averageScore)
 
-    return sorted(result, key=lambda k: -1 * k['adjustedScore'])[:10]
+    return sorted(result, key=lambda k: -1 * k['adjustedScore'])[:5]

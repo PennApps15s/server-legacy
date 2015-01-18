@@ -28,8 +28,6 @@ class User(db.Model):
     bio = db.Column(db.String(255))
     criticPublication = db.Column(db.String(120))
 
-    session = db.Column(db.String(120))
-
     highest_review = db.Column(db.Integer)
     lowest_review = db.Column(db.Integer)
     average_review = db.Column(db.Integer)
