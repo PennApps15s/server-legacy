@@ -14,7 +14,20 @@ movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 @movies_blueprint.route('/feed', methods=['GET'])
 @requires_login
 def get_movie_feed():
-    result = db.engine.execute('''SELECT movies.id
+    popular_results = db.engine.execute('''SELECT movies.id
+        FROM movies 
+        WHERE (movies."Rating" IS NOT NULL) AND movies.id
+        NOT IN (
+            SELECT reviews."movieId" 
+            FROM reviews 
+            WHERE reviews."userId" = ''' + str(g.user.id) + ''')
+        ORDER BY movies."imdbVotes"
+        LIMIT 10
+    ''')
+
+    unpopular_results = db.engine.execute('''
+        SELECT setseed(0.''' + str(g.user.id) + ''');
+        SELECT movies.id
         FROM movies 
         WHERE (movies."Rating" IS NOT NULL) AND movies.id
         NOT IN (
