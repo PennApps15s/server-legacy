@@ -35,8 +35,9 @@ def get_movie_feed():
         SELECT setseed(0.''' + str(g.user.id) + ''');
         SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
-        WHERE (movies."Rating" IS NOT NULL) AND movies.id
-        NOT IN (
+        WHERE (movies."Rating" IS NOT NULL)
+        AND (movies."imdbRating" > 4)
+        AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + '''
