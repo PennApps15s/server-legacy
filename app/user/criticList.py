@@ -6,6 +6,9 @@ import json
 
 columns = ['id', 'name', '"criticPublication"', 'average_review', 'sharedCount', 'diffCount']
 
+upp_border = 60
+low_border = 40
+
 def get_critics(user, reviews):
     print str(user), str(reviews)
 
@@ -27,13 +30,13 @@ def get_critics(user, reviews):
     
     sql = """
             SELECT """ +', '.join(columns)+ """,
-            sharedCount-diffCount as netScore
+            CAST(1.4 as float)*sharedCount-diffCount as netScore
             FROM users
             INNER JOIN
                 (
                     SELECT "userId", COUNT(*) as sharedCount FROM reviews
                     LEFT JOIN users ON "userId" = users.id
-                    WHERE ("movieId" in ("""+', '.join(likes)+""") AND "metacriticScore" > 70) OR ("movieId" in ("""+', '.join(dislikes)+""") AND "metacriticScore" < 40)
+                    WHERE ("movieId" in ("""+', '.join(likes)+""") AND "metacriticScore" > """+str(upp_border)+""") OR ("movieId" in ("""+', '.join(dislikes)+""") AND "metacriticScore" < """+str(low_border)+""")
                     GROUP BY "userId"
                 ) sharedReviews
             on sharedReviews."userId" = users.id
@@ -41,7 +44,7 @@ def get_critics(user, reviews):
                 (
                     SELECT "userId", COUNT(*) as diffCount FROM reviews
                     LEFT JOIN users ON "userId" = users.id
-                    WHERE ("movieId" in ("""+', '.join(likes)+""") AND "metacriticScore" < 30) OR ("movieId" in ("""+', '.join(dislikes)+""") AND "metacriticScore" > 70)
+                    WHERE ("movieId" in ("""+', '.join(likes)+""") AND "metacriticScore" < """+str(low_border)+""") OR ("movieId" in ("""+', '.join(dislikes)+""") AND "metacriticScore" > """+str(upp_border)+""")
                     GROUP BY "userId"
                 ) diffReviews
             ON diffReviews."userId" = users.id
@@ -64,8 +67,8 @@ def get_critics(user, reviews):
         count += 1
 
     averageScore = float(scoreTotal) / float(count)
-    print "Average", averageScore
+    print "Average Score", averageScore
     for i, critic in enumerate(result):
         result[i]['adjustedScore'] = float(critic['netScore']-averageScore)/abs(averageScore)
 
-    return sorted(result, key=lambda k: -1 * k['adjustedScore'])
+    return sorted(result, key=lambda k: -1 * k['adjustedScore'])[:10]
