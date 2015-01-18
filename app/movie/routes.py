@@ -11,10 +11,12 @@ import json
 
 movies_blueprint = Blueprint('movies', __name__, url_prefix='/movie')
 
-@movies_blueprint.route('/feed', methods=['GET'])
+COLUMNS_FOR_FEED = ['id', '"Title"', '"imdbRating"', '"Poster"', '"Year"']
+
+@movies_blueprint.route('/feed/', methods=['GET'])
 @requires_login
 def get_movie_feed():
-    popular_results = db.engine.execute('''SELECT movies.id
+    popular_results = db.engine.execute('''SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
         WHERE (movies."Rating" IS NOT NULL) AND movies.id
         NOT IN (
@@ -22,12 +24,12 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + ''')
         ORDER BY movies."imdbVotes"
-        LIMIT 10
+        LIMIT 8
     ''')
 
     unpopular_results = db.engine.execute('''
         SELECT setseed(0.''' + str(g.user.id) + ''');
-        SELECT movies.id
+        SELECT ''' + ', '.join(COLUMNS_FOR_FEED) + '''
         FROM movies 
         WHERE (movies."Rating" IS NOT NULL) AND movies.id
         NOT IN (
@@ -35,12 +37,20 @@ def get_movie_feed():
             FROM reviews 
             WHERE reviews."userId" = ''' + str(g.user.id) + ''')
         ORDER BY random()
-        LIMIT 10
+        LIMIT 2;
     ''')
 
     feed_movies = []
-    for row in result:
-        feed_movies.append(int(row[0]))
+    for row in popular_results:
+        data = {}
+        for i, cell in enumerate(row):
+            data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
+        feed_movies.append(data)
+    for row in unpopular_results:
+        data = {}
+        for i, cell in enumerate(row):
+            data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
+        feed_movies.append(data)
 
     return json.dumps(feed_movies), 200, {'Content-Type': 'application/json'}
 
