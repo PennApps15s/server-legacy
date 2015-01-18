@@ -22,6 +22,7 @@ def get_movie_feed():
         WHERE movies."Rating" IN (
             'G', 'PG', 'PG-13', 'R', 'TV-PG'
         )
+        AND (movies."Year" > 1990)
         AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
@@ -37,6 +38,7 @@ def get_movie_feed():
         FROM movies 
         WHERE (movies."Rating" IS NOT NULL)
         AND (movies."imdbRating" > 4)
+        AND (movies."Year" > 1990)
         AND movies.id NOT IN (
             SELECT reviews."movieId" 
             FROM reviews 
