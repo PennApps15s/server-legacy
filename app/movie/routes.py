@@ -49,12 +49,12 @@ def get_movie_feed():
     ''')
 
     feed_movies = []
-    for row in popular_results:
+    for row in most_voted_results:
         data = {}
         for i, cell in enumerate(row):
             data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
         feed_movies.append(data)
-    for row in unpopular_results:
+    for row in highest_rated_results:
         data = {}
         for i, cell in enumerate(row):
             data[COLUMNS_FOR_FEED[i].replace('"', '')] = cell
