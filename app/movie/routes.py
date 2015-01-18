@@ -18,6 +18,7 @@ UNIVERSAL_FILTERS = '''
         )
         AND (movies."Year" > 2004)
         AND (movies."imdbRating" > 5)
+        AND (movies."Genre" NOT LIKE 'Documentary, Music')
     '''
 
 @movies_blueprint.route('/feed/', methods=['GET'])
